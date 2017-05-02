@@ -1,0 +1,7 @@
+data/*
+git.sh
+git.sh~
+cpychg.sh
+cpychg.sh~
+*.php~
+*.txt~
