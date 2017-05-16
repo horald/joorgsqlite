@@ -28,6 +28,9 @@ foreach ( $listarray as $arrelement ) {
       case 'icon':
         echo "<th>".$arrelement['label']."</th>";
       break;
+      case 'JN':
+        echo "<th>".$arrelement['label']."</th>";
+      break;
       case 'nummer':
         echo "<th>".$arrelement['label']."</th>";
       break;
@@ -158,7 +161,7 @@ while ($row = $results->fetchArray()) {
       switch ( $arrelement['type'] )
       {
         case 'icon':
-            echo "<td><a href='".$arrelement['func']."&id=".$row['fldindex']."' class='btn btn-primary btn-sm active' role='button'>".$arrelement['label']."</a></td> ";
+            echo "<td><a href='".$arrelement['func']."&id=".$index."' class='btn btn-primary btn-sm active' role='button'>".$arrelement['label']."</a></td> ";
         break;
         case 'nummer':
           $nummer=$nummer+1;
@@ -168,6 +171,9 @@ while ($row = $results->fetchArray()) {
           echo "<td>".$row[$arrelement['dbfield']]."</td>";
         break;
         case 'timestamp':
+          echo "<td>".$row[$arrelement['dbfield']]."</td>";
+        break;
+        case 'JN':
           echo "<td>".$row[$arrelement['dbfield']]."</td>";
         break;
         case 'text':

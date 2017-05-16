@@ -29,7 +29,7 @@ if (!file_exists($dirdata)) {
   }
 } else {
   if (!file_exists($dbjoorgsqlite)) {
-    //include("classes/install.php");
+    include("classes/install.php");
   }
 }
 include("classes/checkupgrade.php");
@@ -39,7 +39,7 @@ $parentid=$_GET['id'];
 //echo $parentid."=parentid<br>";
 if ($parentid=="") {
   $versnr=$_POST['versnr'];
-  check_version($versnr);
+  //check_version($versnr);
 }
 $check="ok";
 if ($check=="ok") {

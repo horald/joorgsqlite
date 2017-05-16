@@ -67,6 +67,20 @@ function updateinput($pararray,$listarray,$idwert,$menu,$menugrp) {
   	 if ($arrelement['fieldsave']<>"NO") {
     switch ( $arrelement['type'] )
     {
+      case 'JN':
+        echo "<tr>";
+        echo "<td class='col-md-1'><label >".$arrelement['label'].":</label></td>";
+        echo "<td class='col-md-2'><select name='".$arrelement['name']."' size='1' >";
+        if ($row[$arrelement['dbfield']]=="J") {
+          echo "<option style='background-color:#c0c0c0;' selected>J</option>";
+          echo "<option style='background-color:#c0c0c0;' >N</option>";
+        } else {
+          echo "<option style='background-color:#c0c0c0;' >J</option>";
+          echo "<option style='background-color:#c0c0c0;' selected>N</option>";
+        }
+        echo "</select></td>";
+        echo "</tr>";
+      break;
       case 'text':
         $wert=$arr[$arrelement['dbfield']];
         if ($wert=="") {
@@ -239,6 +253,10 @@ function updatesave($pararray,$listarray,$menu,$show,$chkpreis,$menugrp,$autoinc
         break;
         case 'select':
           $sql=$sql.$arrelement['dbfield']."='".$_POST[$arrelement['name']]."', ";
+        break;
+        case 'JN':
+      	  $dbwert=$_POST[$arrelement['dbfield']];
+          $sql=$sql.$arrelement['dbfield']."='".$_POST[$arrelement['dbfield']]."', ";
         break;
         case 'time':
       	 $dbwert=$_POST[$arrelement['dbfield']];
