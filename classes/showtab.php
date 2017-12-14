@@ -2,19 +2,23 @@
 session_start();
 include("bootstrapfunc.php");
 include("showtabfunc.php");
+include("../config.php");
 $menu=$_GET['menu'];
 $filter=$_GET['filter'];
 $id=$_GET['id'];
 //echo $menu."=menu<br>";
-include("../sites/views/".$menu."/showtab.inc.php");
+if ($language<>"") {
+  include("../sites/views/".$menu."/showtab.inc.".$language.".php");
+} else {
+  include("../sites/views/".$menu."/showtab.inc.php");
+}
 bootstraphead();
 bootstrapbegin($pararray['headline']);
-
 $db = new SQLite3('../data/joorgsqlite.db');
 
 $sql=showtabfilter($filter,$filterarray,$pararray,$menu);
 
-showtabfunc($menu,$sql,$id);
+showtabfunc($menu,$sql,$id,$language);
 
 $dbselarr=array();
 $results = $db->query($sql);
@@ -132,6 +136,7 @@ $count=0;
 //$calcsum=8.16;
 $sum=$calcsum;
 $summe=$sum;
+$arrsumcalc=array(0,0);
 $sumcalc=0;
 $sumdiff=0;
 while ($row = $results->fetchArray()) {
@@ -311,6 +316,8 @@ while ($row = $results->fetchArray()) {
           }
           $sum=$sum+$wert;
       	 $sumcalc=$sumcalc+$wert;
+      	 $idxsumcalc=$arrelement['calcidx'];
+      	 $arrsumcalc[$idxsumcalc]=$arrsumcalc[$idxsumcalc]+$wert;
           echo "<td style='text-align:right;padding-right:10px;' width='".$arrelement['width']."'>".sprintf("%.".$nachkomma."f",$wert)."</td>";
         break;
         case 'calcsum':
@@ -403,7 +410,9 @@ foreach ( $listarray as $arrelement ) {
       break;
       case 'calc':
         $nachkomma=2;
-        echo "<td style='text-align:right;padding-right:10px;'>".sprintf("%.".$nachkomma."f",$sumcalc)."</td>";
+        $idxsumcalc=$arrelement['calcidx'];
+//        echo "<td style='text-align:right;padding-right:10px;'>".sprintf("%.".$nachkomma."f",$sumcalc)."</td>";
+        echo "<td style='text-align:right;padding-right:10px;'>".sprintf("%.".$nachkomma."f",$arrsumcalc[$idxsumcalc])."</td>";
       break;
       case 'calcaddsum':
         $nachkomma=2;
@@ -432,5 +441,6 @@ foreach ( $listarray as $arrelement ) {
 }
 echo "</tr>";
 echo "</table>";
+
 bootstrapend();
 ?>

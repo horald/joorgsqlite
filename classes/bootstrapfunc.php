@@ -14,14 +14,6 @@ echo "<link href='../includes/meinjs/css/barcode.css' rel='stylesheet'>";
 echo "<script src='../includes/bootstrap/js/jquery-latest.js'></script>";
 
 
-//fullcalendar
-//echo "<link href='../includes/fullcalendar/fullcalendar/fullcalendar.css' rel='stylesheet' />";
-//echo "<link href='../includes/fullcalendar/fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print' />";
-//echo "<script src='../includes/fullcalendar/lib/jquery.min.js'></script>";
-//echo "<script src='../includes/fullcalendar/lib/jquery-ui.custom.min.js'></script>";
-//echo "<script src='../includes/fullcalendar/fullcalendar/fullcalendar.min.js'></script>";
-//echo "<script src='../includes/fullcalendar/js/jsoncalendar.js'></script>";
-
 //auswahl
 echo "<script src='auswahl.js'></script>";
 

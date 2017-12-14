@@ -1,11 +1,13 @@
 <?php
 
-function showtabfunc($menu,$sql,$id) {
+function showtabfunc($menu,$sql,$id,$language) {
+  if ($language<>"") {
+    include("../sites/lang/".$language."/func.inc.php");
+  } else {	
+    include("../sites/lang/de-DE/func.inc.php");
+  }
   echo "<a href='../index.php?id=".$id."'  class='btn btn-primary btn-sm active' role='button'>Menü</a> ";
-  echo "<a href='insert.php?menu=".$menu."' class='btn btn-primary btn-sm active' role='button'>Einfügen</a> ";
-  echo "<a href='import.php?menu=".$menu."' class='btn btn-primary btn-sm active' role='button'>import</a> ";
-  echo "<a href='export.php?menu=".$menu."' class='btn btn-primary btn-sm active' role='button'>Export</a> ";
-  echo "<a href='leeren.php?menu=".$menu."' class='btn btn-primary btn-sm active' role='button'>Leeren</a> ";
+  echo "<a href='insert.php?menu=".$menu."' class='btn btn-primary btn-sm active' role='button'>".$funcinsert."</a> ";
   $db = new SQLite3('../data/joorgsqlite.db');
   $sql="SELECT * FROM tblfunc WHERE fldMenuID='".$menu."' ORDER BY fldName";
   //echo $sql."<br>";
@@ -23,8 +25,6 @@ function showtabfunc($menu,$sql,$id) {
   while ($rowtab = $results->fetchArray()) {
     echo "<a href='".$rowtab['fldphp']."?menu=".$menu."' class='btn btn-primary btn-sm active' role='button'>".$rowtab['fldBez']."</a> ";
   } 
-  //echo "<a href='schicken.php?menu=".$menu."' class='btn btn-primary btn-sm active' role='button'>senden</a> ";
-  //echo "<a href='empfangen.php?menu=".$menu."' class='btn btn-primary btn-sm active' role='button'>Holen</a> ";
 }
 
 function showtabfilter($filter,$filterarray,$pararray,$menu) {
@@ -52,6 +52,11 @@ function showtabfilter($filter,$filterarray,$pararray,$menu) {
         	 	$lweiter="N";
         	 }
         }	
+        if ($lweiter=="J") {
+        	 if ($wert=="(leer)") {
+        	 	$wert="";
+        	 }
+        }
         //echo $arrelement['name']."<br>";
         //echo $lweiter.",".$arrelement['type'].",".$wert;
         if ($lweiter=="J") {	
@@ -133,6 +138,14 @@ function showtabfilter($filter,$filterarray,$pararray,$menu) {
   foreach ( $filterarray as $arrelement ) {
     switch ( $arrelement['type'] )
     {
+    	case 'JN':
+        echo $arrelement['label'];
+        echo "<select name='".$arrelement['name']."' size='1'>";
+        echo "<option style='background-color:#c0c0c0;' >(ohne)</option>";
+        echo "<option style='background-color:#c0c0c0;' >J</option>";
+        echo "<option style='background-color:#c0c0c0;' >N</option>";
+        echo "</select>";    	
+    	break;
       case 'select':
         $seldbwhere="";
         if ($arrelement['seldbwhere']<>"") {

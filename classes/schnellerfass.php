@@ -14,10 +14,12 @@ if ($schnellerfass==1) {
   $keyort=$_POST['ort'];
   $ortvalue=$_POST[$keyort];
   $show = $_POST['chkanzeigen'];
-  schnellerfass_verarbeiten($pararray,$listarray,$submit,$key,$keyvalue,$keyort,$ortvalue,$show,$autoinc_start,$autoinc_step,$menu);
-  schnellerfass_abfrage($listarray,$menu);  
+  $savetyp = $_POST['savetyp'];
+  schnellerfass_verarbeiten($pararray,$listarray,$submit,$key,$keyvalue,$keyort,$ortvalue,$show,$autoinc_start,$autoinc_step,$menu,$savetyp);
+  schnellerfass_abfrage($listarray,$menu,$savetyp);  
 } else {
-  schnellerfass_abfrage($listarray,$menu);  
+  $savetyp="Hinzufügen";	
+  schnellerfass_abfrage($listarray,$menu,$savetyp);  
 }
 bootstrapend();
 ?>

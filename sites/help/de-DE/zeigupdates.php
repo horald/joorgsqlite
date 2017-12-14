@@ -10,5 +10,5 @@ $pfad="http://".$_SERVER['SERVER_NAME'].$pfad;
 
 //includes("updates/updateprot1.017.html");
 //includes($pfad."/sites/help/de-DE/updates/updateprot1.018.php");
-includes($pfad."/sites/help/de-DE/updates/updateprot1.020.html");
+//includes($pfad."/sites/help/de-DE/updates/updateprot1.021.html");
 ?>

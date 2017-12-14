@@ -1,5 +1,6 @@
 <?php
 session_start();
+include("../config.php");
 $typ=$_GET['typ'];
 include("bootstrapfunc.php");
 bootstraphead();
@@ -53,12 +54,17 @@ echo "<p class='text-justify'>";
 if ($lok) { 
   $_SESSION["menu"]=$menu;
   $url=$row['fldhelpurl'];
-  //$versnr="1.018";
-  $versnr="1.020";
+  $string = file_get_contents("../version.json");
+  $json_a = json_decode($string, true);
+  $versnr=$json_a['versnr'];
   if ($pagename=="zeigupdates") {
     $url="updates/updateprot".$versnr.".html";
   }
-  include("../sites/help/de-DE/".$url);
+  if ($language<>"") {
+    include("../sites/help/".$language."/".$url);
+  } else {	
+    include("../sites/help/de-DE/".$url);
+  }
   echo "<br> Seite ".$pageno;
 } else {
   echo "<div class='alert alert-error'>";

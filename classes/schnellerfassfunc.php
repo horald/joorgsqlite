@@ -1,6 +1,15 @@
 <?php
 header("content-type: text/html; charset=utf-8");
-function schnellerfass_abfrage($listarray,$menu) {
+
+?>
+<script>
+function phponchange(id) {
+  alert('phponchange:'+id);	
+}	
+</script>
+<?php
+
+function schnellerfass_abfrage($listarray,$menu,$savetyp) {
   $db = new SQLite3('../data/joorgsqlite.db');
   echo "<a href='showtab.php?menu=".$menu."' class='btn btn-primary btn-sm active' role='button'>Zurück</a>"; 
   echo "<form class='form-horizontal' method='post' action='schnellerfass.php?schnellerfass=1&menu=".$menu."'>";
@@ -26,6 +35,9 @@ function schnellerfass_abfrage($listarray,$menu) {
       if ($arrelement['schnellerfass']=="ort") {
         echo "<input type='hidden' name='ort' value='".$arrelement['dbfield']."'/>";
 	  }
+      if ($arrelement['schnellerfass']=="mhdatum") {
+        echo "<input type='hidden' name='ort' value='".$arrelement['dbfield']."'/>";
+	  }
       switch ( $arrelement['type'] )
       {
         case 'text':
@@ -39,12 +51,33 @@ function schnellerfass_abfrage($listarray,$menu) {
 		    }  	
           echo "<dl>";
           echo "<dt><label >".$arrelement['label'].":</label></dt>";
-          echo "<dd><input type='text' name='".$arrelement['dbfield']."' value='".$default."'/> ";
+          echo "<dd><input type='text' name='".$arrelement['dbfield']."' value='".$default."' onchange='phponchange(this.value);' /> ";
           if ($arrelement['barcode']=="YES") {
             echo "<a href='getbarcode.php?menu=".$menu."' class='btn btn-info' role='button'>Barcode</a>";
           }  
+          if ($arrelement['ortkurz']=="YES") {
+            echo "<a href='getortkurz.php?menu=".$menu."&default=".$default."' class='btn btn-info' role='button'>Ort</a>";
+            $sqlsel="SELECT * FROM tblortkurz WHERE fldkurz='".$default."'";
+            $ressel = $db->query($sqlsel);
+            if ($rowsel = $ressel->fetchArray()) {
+              $bez=$rowsel['fldbez'];
+            } else {
+              $bez="";            
+            }           
+            echo " ".$bez;
+          }  
           echo "</dd>";
           echo "</dl>";
+          break;
+        case 'date':
+          echo "<tr>";
+          echo "<td class='col-md-1'><label >".$arrelement['label'].":</label></td>";
+          echo "<td class='col-md-2'><div class='input-group date form_date col-md-2' data-date='' data-date-format='yyyy-mm-dd' data-link-field='dtp_input2' data-link-format='yyyy-mm-dd'>";
+          echo "<input class='form-control' size='8' type='text' name='".$arrelement['dbfield']."' value='".$arr[$arrelement['dbfield']]."' >";
+		    echo "<span class='input-group-addon'><span class='glyphicon glyphicon-calendar'></span></span>";
+          echo "</div>";
+		    echo "<input type='hidden' id='dtp_input2' value='' /><br/></td>";
+          echo "</tr>";
           break;
         case 'select':
 		  $seldbwhere="";
@@ -70,13 +103,32 @@ function schnellerfass_abfrage($listarray,$menu) {
       }
     }
   }
+  echo "<select name='savetyp' size='1'>";
+  if ($savetyp=="Hinzufügen") {
+    echo "<option style='background-color:#c0c0c0;' selected>Hinzufügen</option>";
+  } else {
+    echo "<option style='background-color:#c0c0c0;' >Hinzufügen</option>";
+  }
+  if ($savetyp=="Aktualisieren") {
+    echo "<option style='background-color:#c0c0c0;' selected>Aktualisieren</option>";
+  } else {  
+    echo "<option style='background-color:#c0c0c0;' >Aktualisieren</option>";
+  }  
+  if ($savetyp=="vermindern") {
+    echo "<option style='background-color:#c0c0c0;' selected>vermindern</option>";
+  } else {
+    echo "<option style='background-color:#c0c0c0;' >vermindern</option>";
+  }
+  echo "</select><br>";
   echo "<input type='checkbox' name='chkanzeigen' value='anzeigen'> Speichern anzeigen<br>";
-  echo "<dd><input type='submit' name='submit' value='Hinzufügen' /> ";
-  echo "<input type='submit' name='submit' value='Aktualisieren' /> ";
-  echo "<input type='submit' name='submit' value='vermindern' /></dd>";
+  //echo "<dd><input type='submit' name='submit' value='Hinzufügen' /> ";
+  //echo "<input type='submit' name='submit' value='Aktualisieren' /> ";
+  //echo "<input type='submit' name='submit' value='vermindern' /></dd>";
+  echo "<input type='submit' name='submit' value='OK' /></dd>";
   echo "</form>";  
 }
-function schnellerfass_verarbeiten($pararray,$listarray,$submit,$key,$keyvalue,$keyort,$ortvalue,$show,$autoinc_start,$autoinc_step,$menu) {
+
+function schnellerfass_verarbeiten($pararray,$listarray,$submit,$key,$keyvalue,$keyort,$ortvalue,$show,$autoinc_start,$autoinc_step,$menu,$savetyp) {
   $db = new SQLite3('../data/joorgsqlite.db');
   $dbtable=$pararray['dbtable'];
   $select="SELECT * FROM ".$dbtable." WHERE ".$key."='".$keyvalue."' AND ".$keyort."='".$ortvalue."'";
@@ -88,16 +140,16 @@ function schnellerfass_verarbeiten($pararray,$listarray,$submit,$key,$keyvalue,$
       if ($arrelement['fieldsave']<>"NO") {
         switch ( $arrelement['schnellerfass'] ) {
           case 'anz':
-            switch ( $submit ) {
+            switch ( $savetyp ) {
               case 'Hinzufügen':	
-			    $chgwert=$_POST[$arrelement['dbfield']]; 
+			       $chgwert=$_POST[$arrelement['dbfield']]; 
                 $anz=$row[$arrelement['dbfield']]+$_POST[$arrelement['dbfield']];
                 break;
               case 'Aktualisieren':	
                 $anz=$_POST[$arrelement['dbfield']];
                 break;
               case 'vermindern':	
-			    $chgwert=$_POST[$arrelement['dbfield']]; 
+			       $chgwert=$_POST[$arrelement['dbfield']]; 
                 $anz=$row[$arrelement['dbfield']]-$_POST[$arrelement['dbfield']];
                 break;
             }
@@ -160,7 +212,7 @@ function schnellerfass_verarbeiten($pararray,$listarray,$submit,$key,$keyvalue,$
     $artikel=" (".$rowart['fldBez'].")";
   }
   echo "<div class='alert alert-success'>";
-  switch ( $submit ) {
+  switch ( $savetyp ) {
     case 'Hinzufügen':	
 	  echo "Artikelbestand von ".$keyvalue.$artikel." mit ".$chgwert." auf ".$anz." erhöht.<br>";
       break;

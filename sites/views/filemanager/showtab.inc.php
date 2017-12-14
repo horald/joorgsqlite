@@ -21,12 +21,32 @@ $listarray = array ( array ( 'label' => 'ID',
                              'width' => 100, 
                              'type' => 'text',
                              'dbfield' => 'fldWildcard' ),
+                     array ( 'label' => 'Gruppe',
+                             'name' => 'gruppe',
+                             'getdefault' => 'true',
+                             'width' => 50, 
+                             'type' => 'selectid',
+                             'dbtable' => 'tblfmgrp',
+                             'seldbfield' => 'fldbez',
+                             'seldbindex' => 'fldindex',
+                             'dbfield' => 'fldid_fmgrp' ),
                      array ( 'label' => 'Files',
                              'width' => 5, 
                              'type' => 'icon',
                              'func' => 'filemanager.php?menu=filemanager',
                              'dbfield' => 'icon-book' ));
 							 
+
+$filterarray = array ( 
+                       array ( 'label' => 'Gruppe:',
+                               'name' => 'fltgrp', 
+                               'width' => 10, 
+                               'type' => 'selectid',
+                               'sign' => '=',
+                               'dbtable' => 'tblfmgrp',
+                               'seldbfield' => 'fldbez',
+                               'seldbindex' => 'fldindex',
+                               'dbfield' => 'fldid_fmgrp' ));
 
                              
 $pararray = array ( 'headline' => 'Dateimanager',

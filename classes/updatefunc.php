@@ -12,9 +12,15 @@ alert(strUser);
 </script>
 <?php        	
 
-function updatepreis($rowid,$show) {
+function updatepreis($rowid,$show,$pararray) {
   $db = new SQLite3('../data/joorgsqlite.db');
-  $sql = "SELECT * FROM tblartikel WHERE fldBez='".$_POST['fldBez']."' AND fldOrt='".$_POST['kaufort']."'";
+  //$barcode=$_POST['fldBarcode'];
+  $barcode="";
+  if ($barcode<>"") {
+    $sql = "SELECT * FROM tblartikel WHERE fldBez='".$_POST['fldBez']."' AND fldOrt='".$_POST['kaufort']."' AND fldBarcode='".$barcode."'";
+  } else {
+    $sql = "SELECT * FROM tblartikel WHERE fldBez='".$_POST['fldBez']."' AND fldOrt='".$_POST['kaufort']."'";
+  }
   //echo $sql."<br>";
   $results = $db->query($sql);
   $count=0;
@@ -26,7 +32,11 @@ function updatepreis($rowid,$show) {
   if ($count==1) {
     if ($_POST['fldPreis']<>"") {
       if ($_POST['kaufort']<>"") {  
-        $sql="UPDATE tblartikel SET fldPreis='".$_POST['fldPreis']."' WHERE fldindex=".$arr['fldindex'];
+        if ($barcode<>"") {
+          $sql="UPDATE tblartikel SET fldPreis='".$_POST['fldPreis']."', fldBarcode='".$barcode."' WHERE fldindex=".$arr['fldindex'];
+        } else {
+          $sql="UPDATE tblartikel SET fldPreis='".$_POST['fldPreis']."' WHERE fldindex=".$arr['fldindex'];
+        }  
         $db->exec($sql);
         if ($show=="anzeigen") {
           echo "<div class='alert alert-success'>";
@@ -40,23 +50,75 @@ function updatepreis($rowid,$show) {
   if ($count==0) {
     if ($_POST['fldPreis']<>"") {
       if ($_POST['kaufort']<>"") {  
-        $sql="INSERT INTO tblartikel (fldBez,fldKonto,fldPreis,fldOrt,fldAnz,fldJN) VALUES ('".$_POST['fldBez']."','".$_POST['fldKonto']."','".$_POST['fldPreis']."','".$_POST['kaufort']."','1','J')";
+        if ($barcode<>"") {
+          $sql="INSERT INTO tblartikel (fldBez,fldKonto,fldPreis,fldOrt,fldAnz,fldJN,fldBarcode) VALUES ('".$_POST['fldBez']."','".$_POST['fldKonto']."','".$_POST['fldPreis']."','".$_POST['kaufort']."','1','J','".$barcode."')";
+        } else {
+          $sql="INSERT INTO tblartikel (fldBez,fldKonto,fldPreis,fldOrt,fldAnz,fldJN) VALUES ('".$_POST['fldBez']."','".$_POST['fldKonto']."','".$_POST['fldPreis']."','".$_POST['kaufort']."','1','J')";
+        }  
         //echo $sql."<br>";
         $db->exec($sql);
         //echo $db->lastErrorMsg()."<br>";
       }
     }
   }  
+  if ($pararray['preisentw']=="J") {
+    $qrypreisentw="SELECT * FROM tblpreisentw WHERE fldBez='".$_POST['fldBez']."' AND fldOrt='".$_POST['kaufort']."' and fldPreis='".$_POST['fldPreis']."' and fldDatum='".$_POST['fldEinkaufDatum']."'";  
+    //echo $qrypreisentw."<br>";  
+    $respreisentw = $db->query($qrypreisentw);
+    echo "<div class='alert alert-success'>";
+    if ($row = $respreisentw->fetchArray()) {
+      echo "keine Preisänderung.";
+    } else {
+    	 $qryupd="INSERT INTO tblpreisentw (fldBez,fldOrt,fldPreis,fldDatum) VALUES('".$_POST['fldBez']."','".$_POST['kaufort']."','".$_POST['fldPreis']."','".$_POST['fldEinkaufDatum']."')"; 
+    	 echo "Neuer Preis:<br>";
+       echo $qryupd;
+       $db->exec($qryupd);
+    }
+    echo "</div>";
+  }
 }
+
+function getpreis($db,$rowid,$dbtable,$dbindex,$bez,$ort,$barcode) {
+//  $preis="";
+  if ($barcode<>"") {
+    $qryartikel="SELECT * FROM tblartikel WHERE fldBez='".$bez."' AND fldOrt='".$ort."' AND fldBarcode='".$barcode."'";
+  } else {
+    $qryartikel="SELECT * FROM tblartikel WHERE fldBez='".$bez."' AND fldOrt='".$ort."'";
+  }
+  $resartikel = $db->query($qryartikel);
+  if ($rowartikel = $resartikel->fetchArray()) {
+    $preis=$rowartikel['fldPreis'];
+  }	
+//  return $preis;
+  return $rowartikel;      
+}
+
 
 function updateinput($pararray,$listarray,$idwert,$menu,$menugrp) {
   $db = new SQLite3('../data/joorgsqlite.db');
-  $sql="SELECT * FROM ".$pararray['dbtable']." WHERE fldindex=".$idwert;
+  $dbtable=$pararray['dbtable'];
+  $sql="SELECT * FROM ".$dbtable." WHERE fldindex=".$idwert;
   //echo $sql."<br>";
   $results = $db->query($sql);
   while ($row = $results->fetchArray()) {
     $arr=$row;
   }	
+  $barcode="";
+  if ($pararray['chkpreis']=="J") {
+  	 $preis=$arr['fldPreis'];
+  	 if ($preis=="") {
+    	$bez=$arr['fldBez'];
+      $ort=$arr['fldOrt'];
+      $barcode=$arr['fldBarcode'];
+      $getpreis=getpreis($db,$idwert,$dbtable,$pararray['fldindex'],$bez,$ort,$barcode);
+      if ($getpreis['fldPreis']<>"") {
+        $preis=$getpreis['fldPreis'];
+      }
+      if ($getpreis['fldBarcode']<>"") {
+        $barcode=$getpreis['fldBarcode'];
+      }
+    }
+  }  
   echo "<a href='showtab.php?menu=".$menu."&menugrp=".$menugrp."' class='btn btn-primary btn-sm active' role='button'>Zurück</a>"; 
   echo "<form class='form-horizontal' method='post' action='update.php?update=1&menu=".$menu."&menugrp=".$menugrp."' role='form'>";
 
@@ -81,11 +143,26 @@ function updateinput($pararray,$listarray,$idwert,$menu,$menugrp) {
         echo "</select></td>";
         echo "</tr>";
       break;
+      case 'gettext':
+        $wert=$arr[$arrelement['dbfield']];
+        echo "<tr>";
+        echo "<td class='col-md-1'><label>".$arrelement['label'].":</label></td>";
+        echo "<td class='col-md-2'><input type='text' name='".$arrelement['dbfield']."' value='".$wert."'/></td>";
+        echo "</tr>";
+      break;
       case 'text':
         $wert=$arr[$arrelement['dbfield']];
         if ($wert=="") {
           if ($arrelement['default']<>"") {
           	$wert=$arrelement['default'];
+          }
+        }
+        if ($pararray['chkpreis']=="J") {
+          if ($arrelement['dbfield']=='fldPreis') {
+        	   $wert=$preis;
+          }
+          if ($arrelement['dbfield']=='fldBarcode') {
+        	   $wert=$barcode;
           }
         }
         echo "<tr>";
@@ -95,9 +172,6 @@ function updateinput($pararray,$listarray,$idwert,$menu,$menugrp) {
       break;
       case 'selectid':
         $seldbwhere="";
-        if ($arrelement['name']=="zimmer") {
-//          $seldbwhere=" WHERE fldid_etage=(SELECT fldindex FROM tblorte WHERE fldBez='2. Stock')";
-        }
         if ($arrelement['seldbwhere']<>"") {
         	 if ($seldbwhere<>"") {
             $seldbwhere=$seldbwhere." AND ".$arrelement['seldbwhere'];
@@ -342,10 +416,8 @@ function updatesave($pararray,$listarray,$menu,$show,$chkpreis,$menugrp,$autoinc
   $sql=$sql." WHERE fldindex=".$_POST['id'];
   $query = $db->exec($sql);
   if ($pararray['chkpreis']=="J") {
-//    if ($chkpreis=="preis") {
-      $rowid=$_POST['id'];
-      updatepreis($rowid,$show);
-//    }
+    $rowid=$_POST['id'];
+    updatepreis($rowid,$show,$pararray);
   }
 
     $dscopy=$_POST['dscopy'];

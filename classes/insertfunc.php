@@ -27,6 +27,13 @@ function insertinput($listarray,$idwert,$menu,$menugrp) {
     }  
     switch ( $arrelement['type'] )
     {
+    	case 'gettext':
+        $default=$_GET['filename'];
+        echo "<dl>";
+        echo "<dt><label >".$arrelement['label'].":</label></dt>";
+        echo "<dd><input type='text' name='".$arrelement['dbfield']."' value='".$default."'/></dd>";
+        echo "</dl>";
+    	break;
       case 'text':
         echo "<dl>";
         echo "<dt><label >".$arrelement['label'].":</label></dt>";
@@ -136,6 +143,25 @@ function insertinput($listarray,$idwert,$menu,$menugrp) {
   echo "</form>";
 }
 
+function updatepreis($db,$rowid,$dbtable,$dbindex) {
+  $query="SELECT * FROM ".$dbtable." WHERE ".$dbindex."=".$rowid;	
+  $results = $db->query($query);
+  if ($row = $results->fetchArray()) {
+  	 $bez=$row['fldBez'];
+  	 $ort=$row['fldOrt'];
+  	 $preis=$row['fldPreis'];
+  	 if ($preis=="") {
+      $qryartikel="SELECT * FROM tblartikel WHERE fldBez='".$bez."' AND fldOrt='".$ort."'";
+      $resartikel = $db->query($qryartikel);
+      if ($rowartikel = $resartikel->fetchArray()) {
+        $preis=$rowartikel['fldPreis'];
+        $qryupd="UPDATE ".$dbtable." SET fldPreis='".$preis."' WHERE ".$dbindex."=".$rowid;	
+        $db->exec($qryupd);
+      }	
+  	 }
+  }	
+}
+
 function insertsave($pararray,$listarray,$menu,$menugrp,$show,$autoinc_step,$autoinc_start,$timezonediff,$autoinc) {
   echo "<a href='showtab.php?menu=".$menu."&menugrp=".$menugrp."' class='btn btn-primary btn-sm active' role='button'>Liste</a>"; 
   $db = new SQLite3('../data/joorgsqlite.db');
@@ -164,6 +190,9 @@ function insertsave($pararray,$listarray,$menu,$menugrp,$show,$autoinc_step,$aut
   	 if ($arrelement['fieldsave']<>"NO") {
       switch ( $arrelement['type'] )
       {
+        case 'gettext':
+          $sql=$sql.$arrelement['dbfield'].",";
+        break;
         case 'text':
           $sql=$sql.$arrelement['dbfield'].",";
         break;
@@ -218,6 +247,9 @@ function insertsave($pararray,$listarray,$menu,$menugrp,$show,$autoinc_step,$aut
 
       switch ( $arrelement['type'] )
       {
+        case 'gettext':
+          $sql=$sql."'".$_POST[$arrelement['dbfield']]."',";
+        break;
         case 'text':
           $sql=$sql."'".$_POST[$arrelement['dbfield']]."',";
         break;
@@ -304,11 +336,11 @@ function insertsave($pararray,$listarray,$menu,$menugrp,$show,$autoinc_step,$aut
   }
   //echo $sqlupd."<br>";
   $resupd = $db->exec($sqlupd);
-  $db->close();
   //echo $pararray['chkpreis']."=chkpreis<br>"; 
   if ($pararray['chkpreis']=="J") {
-    updatepreis($rowid);
+    updatepreis($db,$rowid,$dbtable,$pararray['fldindex']);
   }
+  $db->close();
   echo "<div class='alert alert-success'>";
   echo "Daten '".$_POST['fldBez']."' mit rowid=".$rowid." eingefügt.";
   echo "</div>";
