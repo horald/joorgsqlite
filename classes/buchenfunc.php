@@ -73,7 +73,7 @@ function buchenfunc($menu,$pararray,$inhaber,$art,$timezonediff,$datum,$uhrzeit,
   //$datum = date("Y-m-d");
   $Sumbetrag=0;
   if ($chkktosum) {
-    $qrysum="SELECT sum(fldPreis*fldAnz) AS summe, fldKonto FROM tblEinkauf_liste WHERE fldOrt='".$ort."' and fldArchivDat='' GROUP BY fldKonto";
+    $qrysum="SELECT sum(fldPreis*fldAnz) AS summe, fldKonto FROM tblEinkauf_liste WHERE fldOrt='".$ort."' and ".$pararray['strwhere']." GROUP BY fldKonto";
     $ressum = $db->query($qrysum);
     while ($rowsum = $ressum->fetchArray() ) { 
       $timestamp=$datum." ".$uhrzeit;
